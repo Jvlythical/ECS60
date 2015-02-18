@@ -1,0 +1,46 @@
+4,3,10
+1922,Li,Cadence,F,1911,Chon,Sebastian,M, -1
+1920,Espinoza,Avery,F,1913,Espinoza,Evan,M,1897,Espinoza,Aiden,M
+1897,Espinoza,Aiden,M,1925,Espinoza,Lincoln,M,1897,Espinoza,Aiden,M
+1922,Espinoza,Zoe,F,1949,Li,Sebastian,M,1897,Espinoza,Aiden,M
+1911,Chon,Sebastian,M,1922,Espinoza,Zoe,F, -1
+1911,Chon,Sebastian,M,1917,Li,Colin,M, -1
+1956,Li,Zoe,F,1939,Li,Declan,M,1899,Li,Liam,M
+1897,Espinoza,Aiden,M,1895,Chon,Alex,M, -1
+1897,Espinoza,Aiden,M,1895,Chon,Alex,M, -1
+1911,Chon,Sebastian,M,1922,Espinoza,Zoe,F, -1
+1994,Espinoza,Vivian,F
+1990,Espinoza,Ava,F
+1981,Espinoza,Sean,M
+1978,Espinoza,Emily,F
+1976,Espinoza,Mia,F
+1973,Espinoza,David,M,1962,Li,Zoe,F
+1973,Espinoza,Tyler,M,1958,Li,Cora,F,1990,Espinoza,Ava,F,1994,Espinoza,Vivian,F
+1962,Li,Zoe,F,1973,Espinoza,David,M
+1958,Li,Cora,F,1973,Espinoza,Tyler,M,1990,Espinoza,Ava,F,1994,Espinoza,Vivian,F
+1956,Li,Zoe,F,1943,Espinoza,Isaac,M,1973,Espinoza,Tyler,M
+1954,Li,Zoe,F,1941,Espinoza,Christopher,M,1973,Espinoza,David,M,1976,Espinoza,Mia,F,1978,Espinoza,Emily,F,1981,Espinoza,Sean,M
+1951,Li,Alexander,M
+1949,Li,Sebastian,M
+1947,Li,Ryder,M
+1946,Espinoza,Aria,F,1939,Li,Declan,M,1962,Li,Zoe,F
+1943,Espinoza,Isaac,M,1956,Li,Zoe,F,1973,Espinoza,Tyler,M
+1941,Espinoza,Christopher,M,1954,Li,Zoe,F,1973,Espinoza,David,M,1976,Espinoza,Mia,F,1978,Espinoza,Emily,F,1981,Espinoza,Sean,M
+1939,Li,Declan,M,1946,Espinoza,Aria,F,1962,Li,Zoe,F
+1928,Espinoza,Gianna,F,1919,Li,Joseph,M,1947,Li,Ryder,M,1949,Li,Sebastian,M,1951,Li,Alexander,M,1954,Li,Zoe,F,1956,Li,Zoe,F,1958,Li,Cora,F
+1925,Espinoza,Lincoln,M
+1924,Li,Isabelle,F,1917,Espinoza,Alex,M,1941,Espinoza,Christopher,M,1943,Espinoza,Isaac,M,1946,Espinoza,Aria,F
+1922,Espinoza,Zoe,F,1917,Li,Colin,M,1939,Li,Declan,M
+1922,Li,Cadence,F,1913,Espinoza,Evan,M
+1920,Espinoza,Avery,F,1911,Chon,Sebastian,M
+1919,Li,Joseph,M,1928,Espinoza,Gianna,F,1947,Li,Ryder,M,1949,Li,Sebastian,M,1951,Li,Alexander,M,1954,Li,Zoe,F,1956,Li,Zoe,F,1958,Li,Cora,F
+1917,Espinoza,Alex,M,1924,Li,Isabelle,F,1941,Espinoza,Christopher,M,1943,Espinoza,Isaac,M,1946,Espinoza,Aria,F
+1917,Li,Colin,M,1922,Espinoza,Zoe,F,1939,Li,Declan,M
+1913,Espinoza,Evan,M,1922,Li,Cadence,F
+1911,Chon,Sebastian,M,1920,Espinoza,Avery,F
+1899,Li,Liam,M,1894,Yun,Hailey,F,1917,Li,Colin,M,1919,Li,Joseph,M,1922,Li,Cadence,F,1924,Li,Isabelle,F
+1897,Espinoza,Aiden,M,1892,Jarvinen,Eliana,F,1913,Espinoza,Evan,M,1917,Espinoza,Alex,M,1920,Espinoza,Avery,F,1922,Espinoza,Zoe,F,1925,Espinoza,Lincoln,M,1928,Espinoza,Gianna,F
+1895,Chon,Alex,M,1890,Muhammed,Lillian,F,1911,Chon,Sebastian,M
+1894,Yun,Hailey,F,1899,Li,Liam,M,1917,Li,Colin,M,1919,Li,Joseph,M,1922,Li,Cadence,F,1924,Li,Isabelle,F
+1892,Jarvinen,Eliana,F,1897,Espinoza,Aiden,M,1913,Espinoza,Evan,M,1917,Espinoza,Alex,M,1920,Espinoza,Avery,F,1922,Espinoza,Zoe,F,1925,Espinoza,Lincoln,M,1928,Espinoza,Gianna,F
+1890,Muhammed,Lillian,F,1895,Chon,Alex,M,1911,Chon,Sebastian,M
