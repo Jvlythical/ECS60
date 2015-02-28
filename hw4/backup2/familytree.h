@@ -12,7 +12,7 @@ public:
   void runQueries(Query *queries, Person *answers, int queryCount);
   int createUid(Person);
   QuadraticHashTable<PersonWrapper>* extractAncestors(PersonWrapper, QuadraticHashTable<PersonWrapper>*);
-  PersonWrapper findYoungest(QuadraticHashTable<PersonWrapper>*, PersonWrapper, PersonWrapper &, int);
+  PersonWrapper findYoungest(QuadraticHashTable<PersonWrapper>*, PersonWrapper, PersonWrapper, int);
 
 	QuadraticHashTable<PersonWrapper> *edges;
 	int people;

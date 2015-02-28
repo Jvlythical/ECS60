@@ -88,6 +88,8 @@ int main(int argc, char* argv[])
   FamilyTree *familyTree = new FamilyTree(families, familyCount);
   delete [] families;
 
+	//return 0;
+
   familyTree->runQueries(queries, answers, queryCount);
   cout << "CPU Time: " << ct.cur_CPUTime() << endl;
 
