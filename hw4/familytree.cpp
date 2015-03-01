@@ -10,19 +10,91 @@
 
 using namespace std;
 
+int FamilyTree::testUniq (Person p1) {
+	bool test = false;
+	if(!test) return false;
+	/*
+	 *   Test if the person about to be inserted exists
+	 *   If it already exists, all the metadata should match
+	 *   else theres a conflict with the UID
+	 *
+	 */
+
+	// TEST START
+		PersonWrapper p2 = edges->find(p1);
+
+		// If the person is already in the hash table
+		if(p2.uid > 0) {	
+			bool print = false;
+			bool same_firstName = strcmp(p1.firstName, p2.person.firstName) == 0;
+			bool same_lastName = strcmp(p1.lastName, p2.person.lastName) == 0;
+			bool same_year = (p1.year == p2.person.year);
+			bool same_gender = p1.gender == p2.person.gender;
+			
+			if(print) {
+				cout << "Same first name: " << same_firstName << endl;
+				cout << "Same last name: " << same_lastName << endl;
+				cout << "Same year: " << same_year << endl;
+				cout << "Same gender: "  << same_gender << endl;
+			}
+
+			if(same_firstName && same_lastName && same_year && same_gender) {
+				//cout << "Inserted same person!" << endl;
+			} else {
+				cout << "FOUND CONFLICTING UID" << endl;
+			}
+
+		} else {
+			//cout << createUid(p1) << endl;
+		}
+		// TEST END
+		
+		return 1;
+}
+
+
+int testNull(Person p) {
+	if(p.year == 0 && strlen(p.firstName) == 0 && strlen(p.lastName) == 0 && p.gender != 'M' && p.gender != 'G') {
+		return true;
+	} else {
+		cout << "NOT NULL" << endl;
+		return false;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 FamilyTree::FamilyTree(Family *families, int familyCount)
 {
 	PersonWrapper pw;
-	pw.uid = -1;
-
-	edges = new QuadraticHashTable<PersonWrapper> (pw, familyCount * 7);
+	pw.uid = 0;
+	
+	edges = new QuadraticHashTable<PersonWrapper> (pw, familyCount * 7 * 2);
 
 	for(int i = 0; i < familyCount; i++) {
 		Family family = families[i];
+		//cout << family.spouse.year << endl;
+
+
 		Person null_parent;
 		null_parent.firstName[0] = '\0';
 		null_parent.lastName[0] = '\0';
 		null_parent.year = 0;
+		null_parent.gender = '\0';
+
+		// Test
+		testUniq(family.person);
+		testUniq(family.spouse);
 
 		pw.uid = createUid(family.person);
 		if(edges->find(family.person).uid <=  0) {
@@ -34,8 +106,8 @@ FamilyTree::FamilyTree(Family *families, int familyCount)
 			people++;
 		}
 
-		pw.uid = createUid(family.spouse);
-		if(edges->find(family.person).uid <= 0) {
+		pw.uid = createUid(family.spouse) ;
+		if(edges->find(family.person).uid <= 0 && family.spouse.year != -1) {
 			pw.person = family.spouse;
 			pw.parent[0] = null_parent;
 			pw.parent[1] = null_parent;
@@ -45,15 +117,20 @@ FamilyTree::FamilyTree(Family *families, int familyCount)
 		}
 
 		for(int n = 0; n < family.childCount; n++) {
+			//Test
+			testUniq(family.children[n]);
+				
 			pw.uid = createUid(family.children[n]);
 			pw.person = family.children[n];
 			pw.parent[0] = family.person;
 			pw.parent[1] = family.spouse;
+
 			edges->insert( pw);
 
 			people++;
 		}
 	}
+
 } // FamilyTree()
 
 
@@ -68,9 +145,12 @@ void FamilyTree::runQueries(Query *queries, Person *answers, int queryCount)
 	PersonWrapper pw_tmp;
 	pw_tmp.person.year = -1;
 	
+
+	//QuadraticHashTable<PersonWrapper> ht(pw_tmp, 50000);
+
 	for(int i = 0; i < queryCount; i++) {
 
-		QuadraticHashTable<PersonWrapper> *ht = new QuadraticHashTable<PersonWrapper>(pw_tmp, 5000);
+		QuadraticHashTable<PersonWrapper> *ht = new QuadraticHashTable<PersonWrapper>(pw_tmp, 50000);
 		PersonWrapper pw = edges->find(queries[i].person1);
 		
 		// Get ancestors for person 1
@@ -82,8 +162,9 @@ void FamilyTree::runQueries(Query *queries, Person *answers, int queryCount)
 		answers[i] = findYoungest(ansc1, pw, pw_tmp, 0).person;
 
 		delete(ht);
+		//ht.makeEmpty();
 	}
-
+	
 }  // runQueries()
 
 /* =========================
@@ -107,16 +188,22 @@ int FamilyTree::createUid(Person p) {
 						int seed = 131;
 						int uid = 0;
 						
-          	for(int i = 0; i < strlen(p.lastName); i++) {
+          	for(unsigned int i = 0; i < strlen(p.lastName); i++) {
           		uid = (uid * seed) + p.lastName[i];
           	}
 						
-						for(int i = 0; i < strlen(p.firstName); i++) {
+						for(unsigned int i = 0; i < strlen(p.firstName); i++) {
           		uid = (uid * seed) + p.firstName[i];
           	}
-						
-          	uid = uid + p.year * 37;
-          	uid = uid + p.gender * seed;
+          	int tmp = p.year;
+
+          	for(int i = 0; i < 3; i++) {
+          		//uid = uid* seed + (tmp % 10 +'0') ;
+          		tmp = (tmp - tmp % 10) / 10;
+          	}
+          	
+          	uid = uid * seed + p.year;
+          	uid = uid * seed + p.gender ;
 
 
             if( uid < 0 ) uid = -uid;
@@ -125,7 +212,11 @@ int FamilyTree::createUid(Person p) {
 }
 
 QuadraticHashTable<PersonWrapper>* FamilyTree::extractAncestors(PersonWrapper pw, QuadraticHashTable<PersonWrapper> *ht) {
-	if(pw.uid <= 0) return ht;
+	if(pw.uid <= 0) {
+		return ht;
+	}
+
+	//if(pw.person.year == 0) return ht;
 
 	PersonWrapper p1 = edges->find(pw.parent[0]);
 	PersonWrapper p2 = edges->find(pw.parent[1]);
@@ -165,8 +256,13 @@ QuadraticHashTable<PersonWrapper>* FamilyTree::extractAncestors(PersonWrapper pw
 */
 
 PersonWrapper FamilyTree::findYoungest(QuadraticHashTable<PersonWrapper>* ht, PersonWrapper pw, PersonWrapper &youngest, int count) {
-	if(pw.uid <= 0) return youngest;
-	if(ht->find(pw.person).uid)  {
+	if(pw.uid <= 0) {
+		return youngest;
+	}
+
+	testUniq(pw.person);
+
+	if(ht->find(pw.person).uid > 0)  {
 		if(pw.person.year > youngest.person.year) youngest = pw;
 	}
 
