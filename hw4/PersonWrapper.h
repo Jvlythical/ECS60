@@ -5,6 +5,8 @@
 
 struct PersonWrapper {
 	int uid;
+	int p1_uid;
+	int p2_uid;
 	Person parent[2];
 	Person person;
 	//Person children[7];

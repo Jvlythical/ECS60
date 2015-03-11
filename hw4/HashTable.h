@@ -1,7 +1,6 @@
         #ifndef _QUADRATIC_PROBING_H_
         #define _QUADRATIC_PROBING_H_
         
-        #include "vector.h"
         #include "mystring.h"
 
         // QuadraticProbing Hash table class
@@ -26,15 +25,18 @@
               : ITEM_NOT_FOUND( rhs.ITEM_NOT_FOUND ),
                 array( rhs.array ), currentSize( rhs.currentSize ) { }
 
-            void printAll();
             void makeEmpty( );
             void insert( const HashedObj & x );
             const QuadraticHashTable & operator=( const QuadraticHashTable & rhs );
             enum EntryType { ACTIVE, EMPTY, DELETED };
             
-             // MODIFIED
-            const HashedObj & find(const Person & x ) const;
-             void remove( const HashedObj & x );
+            void remove( const HashedObj & x );
+
+            const HashedObj & find( const Person &x ) const;
+            const HashedObj & find(int uid ) const;
+            int findPos( int uid ) const;
+						~QuadraticHashTable();
+						
           private:
             struct HashEntry
             {
@@ -45,16 +47,17 @@
                   : element( e ), info( i ) { }
             };
 
-            vector<HashEntry> array;
+            //vector<HashEntry> array;
+            int AR_SIZE;
+						HashEntry *array;
+						
             int currentSize;
             const HashedObj ITEM_NOT_FOUND;
             bool isPrime( int n ) const;
             int nextPrime( int n ) const;
             bool isActive( int currentPos ) const;
-            int findPos( const Person & x ) const;
             int hash( const string & key, int tableSize ) const;
             int hash( const Person & x, int tableSize ) const;
-            void rehash( );
         };
 
         #include "HashTable.cpp"
