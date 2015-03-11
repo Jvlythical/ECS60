@@ -7,7 +7,7 @@ struct PersonWrapper {
 	int uid;
 	Person parent[2];
 	Person person;
-	Person children[7];
+	//Person children[7];
 };
 
 #endif	/* PERSONWRAPPER_H */
