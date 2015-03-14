@@ -9,41 +9,124 @@ using namespace std;
 Scheduler::Scheduler(int numJobs, int numWorkers, Job *jobs, int numPeople)
 {
 	num_jobs = numJobs;
-	dep_chart = new int[numJobs];
-	jl = new JobWrapper[numJobs];
+	jl = wrapJobs(jobs);
+	dep_chart = createDepChart(jobs);
+	this->printDepChart();
+	this->printJl();
+	jl = topSort();
+	this->printJl();
+	//this->topSort(jobs, NULL);
+	//this->queueJobs();
+	
+	//this->testRun();
+	//this->run();
 
-	for(int i = 0; i < numJobs; i++) {
+	//topSort(jobs, &Scheduler::calcWaveECT);
+} // Scheduler()
+
+/* -------------------
+ *   Init methods
+ * -------------------
+ */
+
+int* Scheduler::createDepChart(Job *jobs) {
+	int *tmp = new int[num_jobs];
+
+	for(int i = 0; i < num_jobs; i++) 
+		tmp[i] = 0;	
+
+	for(int i = 0; i < num_jobs; i++) {
+		for(int n = 0; n < jobs[i].numDependencies; n++) {
+			tmp[jobs[i].dependencies[n]] += 1;
+		}
+	}
+
+	return tmp;
+}
+
+JobWrapper* Scheduler::wrapJobs(Job *jobs) {
+	JobWrapper* tmp = new JobWrapper[num_jobs];
+
+	for(int i = 0; i < num_jobs; i++) {
 		JobWrapper jw;
 
 		jw.uid = i;
 		jw.job = jobs[i];
 
-		jl[i] = jw;
+		tmp[i] = jw;
 	}
-	
-	//this->createDepChart(jobs);
-	//this->topSort(jobs, NULL);
-	//this->queueJobs();
-	//this->run();
 
-	for(int i = 0; i < numJobs; i++) {
-		cout << endl;
-		cout << jobs[i].length << endl;
+	return tmp;
+}
 
+JobWrapper* Scheduler::topSort() {
+	int dep_cpy[num_jobs], tmp_pos = 0;
+	JobWrapper* tmp = new JobWrapper[num_jobs];
+	queue<JobWrapper> q, wave;
 
-		for(int n = 0; n < jobs[i].numDependencies; n++) {
-			cout << "Dependency: " << jobs[i].dependencies[n] << endl;
+	memcpy(dep_cpy, dep_chart, num_jobs * sizeof(int));
+
+	// Find 0 in-degree jobs
+	for(int i = 0; i < num_jobs; i++) {
+		if(dep_cpy[jl[i].uid] == 0) 
+			q.push(jl[i]);
+	}
+
+	while(!q.empty()) {
+		JobWrapper cur = q.front();
+		
+		for(int i = 0; i < cur.job.numDependencies; i++) {
+			int cur_uid = cur.job.dependencies[i];
+			
+			if(--dep_cpy[cur_uid] == 0) {
+				q.push(jl[cur_uid]);
+			}
 		}
+
+		tmp[tmp_pos++] = cur;
+		q.pop();
 	}
 
-	//topSort(jobs, &Scheduler::calcWaveECT);
-} // Scheduler()
+	return tmp;
+}
+
+
+/*
+void Scheduler::topSort(Job *jobs, TopSortCB callback = NULL) {
+
+		//cout << (this->*callback)(&jw, 0, 0 ) << endl;	
+}
+*/
+
+void Scheduler::calcWaveST(JobWrapper* wave, int wave_size, int prev_ect) {
+	for(int i = 0; i < wave_size; i++) 
+		wave[i].st = prev_ect - wave[i].job.startTime;
+}
+
+int Scheduler::calcWaveECT(JobWrapper* wave, int wave_size, int prev_ct) {
+	int ect = 0;
+
+	for(int i = 0; i < wave_size; i++) {
+		wave[i].job.startTime = prev_ct + wave[i].job.length;
+		
+		if(wave[i].job.startTime > ect)
+			ect = wave[i].job.startTime;
+	}
+
+	return ect;
+}
+
+
+/* --------------------
+ *   Run scheduler
+ * --------------------
+ */
 
 void Scheduler::run()
 {
 	// Create a copy of the dependency chart
 	int dep_cpy[num_jobs], marker[1000];
-	int marker_pos;
+	int marker_pos = 0;
 	JobWrapper jwt;
 	memcpy(dep_cpy, dep_chart, num_jobs * sizeof(int));
 
@@ -89,31 +172,6 @@ void Scheduler::run()
 
 } // run()
 
-void Scheduler::createDepChart(Job *jobs) {
-
-}
-
-void Scheduler::topSort(Job *jobs, TopSortCB callback = NULL) {
-
-		//cout << (this->*callback)(&jw, 0, 0 ) << endl;	
-}
-
-void Scheduler::calcWaveST(JobWrapper* wave, int wave_size, int prev_ect) {
-	for(int i = 0; i < wave_size; i++) 
-		wave[i].st = prev_ect - wave[i].ct;
-}
-
-int Scheduler::calcWaveECT(JobWrapper* wave, int wave_size, int prev_ct) {
-	int ect = 0;
-
-	for(int i = 0; i < wave_size; i++) {
-		wave[i].ct = prev_ct + wave[i].job.length;
-		if(wave[i].ct > ect)
-			ect = wave[i].ct;
-	}
-
-	return ect;
-}
 
 void Scheduler::queueJobs() {
 	for(int i = 0; i < num_jobs; i++) {
@@ -122,20 +180,50 @@ void Scheduler::queueJobs() {
 	}
 }
 
-void Scheduler::assignPeople(JobWrapper &jw) {
 
+void Scheduler::assignPeople(JobWrapper &jw) {
+	cout << "Assigning people" << endl;
 }
 
-// Debug methods
+
+/* -------------------
+ *   Debug methods
+ * -------------------
+ */
 
 void Scheduler::printDepChart() {
+	cout << " ===== PRINTING Dep Chart ===== " << endl;
+	
 	for(int i = 0; i < num_jobs; i++) {
 		cout << i << " => " << dep_chart[i] << endl;
 	}
 }
 
 void Scheduler::printJl() {
+	cout << " ===== PRINTING JL =====" << endl;
+
 	for(int i = 0; i < num_jobs; i++) {
-		cout << "Job UID: " << jl[i].uid << endl;
+		JobWrapper tmp = jl[i];
+
+		cout << "Job UID: " << tmp.uid << endl;
+		cout << "\tLength: " << tmp.job.length << endl;
+		cout << "\tStart time: " << tmp.job.startTime << endl;
+		cout << "\tDependencies: ";
+		
+		for(int n = 0; n < tmp.job.numDependencies; n++) {
+			cout << tmp.job.dependencies[n] << " ";
+		}
+		cout << endl;
+	}
+	cout << endl;
+}
+
+void Scheduler::testRun() {
+	for(int i = 0; i < num_jobs / 2; i++) {
+		reg.push(jl[i]);
+	}
+
+	for(int i = num_jobs / 2; i < num_jobs; i++) {
+		crit.push(jl[i]);
 	}
 }

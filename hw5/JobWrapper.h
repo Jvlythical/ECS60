@@ -5,7 +5,6 @@
 		int uid;
 		Job job;
 		int st;
-		int ct;
 	} JobWrapper;
 
 #endif

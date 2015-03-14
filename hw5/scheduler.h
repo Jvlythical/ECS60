@@ -14,8 +14,9 @@ public:
 
   Scheduler(int numJobs, int numWorkers, Job *jobs, int numPeople);
   void run();
-  void createDepChart(Job*);
-  void topSort(Job*, TopSortCB);
+  int* createDepChart(Job*);
+  JobWrapper* wrapJobs(Job*);
+  JobWrapper* topSort();
   void calcWaveST(JobWrapper*, int, int);
   int calcWaveECT(JobWrapper*, int, int);
   void queueJobs();
@@ -24,6 +25,7 @@ public:
   // Debug methods
   void printDepChart();
   void printJl();
+  void testRun();
 
 private:
 	int num_jobs;
