@@ -19,7 +19,11 @@ public:
   void calcWaveST(JobWrapper*, int, int);
   int calcWaveECT(JobWrapper*, int, int);
   void queueJobs();
-  void assignPeople(JobWrapper);
+  void assignPeople(JobWrapper &);
+
+  // Debug methods
+  void printDepChart();
+  void printJl();
 
 private:
 	int num_jobs;

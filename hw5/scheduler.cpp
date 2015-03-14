@@ -53,11 +53,11 @@ void Scheduler::run()
 		// Start with the critical jobs
 		jwt = crit.front();
 		while(dep_cpy[jwt.uid] == 0) {
-			assignPeople(&jwt);
+			assignPeople(jwt);
 			
 			// Mark for dependency deletion
 			for(int i = 0; i < jwt.job.numDependencies; ++i) {
-				marker[marker_pos] = jwt.job.dependency[i];
+				marker[marker_pos] = jwt.job.dependencies[i];
 				marker_pos += 1;
 			}
 
@@ -68,11 +68,11 @@ void Scheduler::run()
 		// Look at the regular jobs
 		jwt = reg.front();
 		while(dep_cpy[jwt.uid] == 0) {
-			assignPeople(&jwt);
+			assignPeople(jwt);
 			
 			// Mark for dependency deletion 
 			for(int i = 0; i < jwt.job.numDependencies; ++i) {
-				marker[marker_pos] = jwt.job.dependency[i];
+				marker[marker_pos] = jwt.job.dependencies[i];
 				marker_pos += 1;
 			}
 
@@ -122,6 +122,20 @@ void Scheduler::queueJobs() {
 	}
 }
 
-void Scheduler::assignPeople(JobWrapper jw) {
+void Scheduler::assignPeople(JobWrapper &jw) {
 
+}
+
+// Debug methods
+
+void Scheduler::printDepChart() {
+	for(int i = 0; i < num_jobs; i++) {
+		cout << i << " => " << dep_chart[i] << endl;
+	}
+}
+
+void Scheduler::printJl() {
+	for(int i = 0; i < num_jobs; i++) {
+		cout << "Job UID: " << jl[i].uid << endl;
+	}
 }
