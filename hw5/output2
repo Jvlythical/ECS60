@@ -1,0 +1,179 @@
+ ===== PRINTING JL =====
+Job UID: 19
+	Length: 42
+	Start time: 0
+	Finish time: 42
+	Slack time: 0
+	Wave: 0
+	Dependencies: 11 23 15 
+Job UID: 23
+	Length: 27
+	Start time: 42
+	Finish time: 69
+	Slack time: 0
+	Wave: 1
+	Dependencies: 17 2 46 
+Job UID: 17
+	Length: 36
+	Start time: 69
+	Finish time: 105
+	Slack time: 0
+	Wave: 2
+	Dependencies: 7 25 
+Job UID: 25
+	Length: 44
+	Start time: 105
+	Finish time: 149
+	Slack time: 0
+	Wave: 3
+	Dependencies: 10 31 5 3 
+Job UID: 9
+	Length: 47
+	Start time: 149
+	Finish time: 196
+	Slack time: 0
+	Wave: 4
+	Dependencies: 20 48 
+Job UID: 45
+	Length: 44
+	Start time: 196
+	Finish time: 240
+	Slack time: 0
+	Wave: 5
+	Dependencies: 21 29 48 13 38 
+Job UID: 29
+	Length: 44
+	Start time: 240
+	Finish time: 284
+	Slack time: 0
+	Wave: 6
+	Dependencies: 16 36 6 30 
+Job UID: 4
+	Length: 20
+	Start time: 284
+	Finish time: 304
+	Slack time: 0
+	Wave: 7
+	Dependencies: 36 30 33 
+Job UID: 0
+	Length: 42
+	Start time: 304
+	Finish time: 346
+	Slack time: 0
+	Wave: 8
+	Dependencies: 
+
+CPU time: 0
+Job ID# 0 started before all ancestors completed.
+Job ID# 0 has no people assigned to it.
+Job ID# 1 started before all ancestors completed.
+Job ID# 1 has no people assigned to it.
+Job ID# 2 started before all ancestors completed.
+Job ID# 2 has no people assigned to it.
+Job ID# 3 started before all ancestors completed.
+Job ID# 3 has no people assigned to it.
+Job ID# 4 started before all ancestors completed.
+Job ID# 4 has no people assigned to it.
+Job ID# 5 started before all ancestors completed.
+Job ID# 5 started earlier than ancestors finished.
+Job ID# 5 has no people assigned to it.
+Job ID# 6 started before all ancestors completed.
+Job ID# 6 has no people assigned to it.
+Job ID# 7 started before all ancestors completed.
+Job ID# 7 has no people assigned to it.
+Job ID# 8 started before all ancestors completed.
+Job ID# 8 has no people assigned to it.
+Job ID# 9 started before all ancestors completed.
+Job ID# 9 has no people assigned to it.
+Job ID# 10 started before all ancestors completed.
+Job ID# 10 has no people assigned to it.
+Job ID# 11 started before all ancestors completed.
+Job ID# 11 has no people assigned to it.
+Job ID# 12 started before all ancestors completed.
+Job ID# 12 started earlier than ancestors finished.
+Job ID# 12 has no people assigned to it.
+Job ID# 13 started before all ancestors completed.
+Job ID# 13 has no people assigned to it.
+Job ID# 14 started earlier than ancestors finished.
+Job ID# 14 has no people assigned to it.
+Job ID# 15 started before all ancestors completed.
+Job ID# 15 has no people assigned to it.
+Job ID# 16 started before all ancestors completed.
+Job ID# 16 started earlier than ancestors finished.
+Job ID# 16 has no people assigned to it.
+Job ID# 17 started before all ancestors completed.
+Job ID# 17 started earlier than ancestors finished.
+Job ID# 17 has no people assigned to it.
+Job ID# 18 started earlier than ancestors finished.
+Job ID# 18 has no people assigned to it.
+Job ID# 19 has no people assigned to it.
+Job ID# 20 started before all ancestors completed.
+Job ID# 20 started earlier than ancestors finished.
+Job ID# 20 has no people assigned to it.
+Job ID# 21 started before all ancestors completed.
+Job ID# 21 has no people assigned to it.
+Job ID# 22 started before all ancestors completed.
+Job ID# 22 started earlier than ancestors finished.
+Job ID# 22 has no people assigned to it.
+Job ID# 23 started earlier than ancestors finished.
+Job ID# 23 has no people assigned to it.
+Job ID# 24 started earlier than ancestors finished.
+Job ID# 24 has no people assigned to it.
+Job ID# 25 started earlier than ancestors finished.
+Job ID# 25 has no people assigned to it.
+Job ID# 26 started before all ancestors completed.
+Job ID# 26 started earlier than ancestors finished.
+Job ID# 26 has no people assigned to it.
+Job ID# 27 started earlier than ancestors finished.
+Job ID# 27 has no people assigned to it.
+Job ID# 28 started earlier than ancestors finished.
+Job ID# 28 has no people assigned to it.
+Job ID# 29 started before all ancestors completed.
+Job ID# 29 started earlier than ancestors finished.
+Job ID# 29 has no people assigned to it.
+Job ID# 30 started before all ancestors completed.
+Job ID# 30 started earlier than ancestors finished.
+Job ID# 30 has no people assigned to it.
+Job ID# 31 started earlier than ancestors finished.
+Job ID# 31 has no people assigned to it.
+Job ID# 32 started before all ancestors completed.
+Job ID# 32 has no people assigned to it.
+Job ID# 33 started before all ancestors completed.
+Job ID# 33 started earlier than ancestors finished.
+Job ID# 33 has no people assigned to it.
+Job ID# 34 started earlier than ancestors finished.
+Job ID# 34 has no people assigned to it.
+Job ID# 35 started earlier than ancestors finished.
+Job ID# 35 has no people assigned to it.
+Job ID# 36 started earlier than ancestors finished.
+Job ID# 36 has no people assigned to it.
+Job ID# 37 started earlier than ancestors finished.
+Job ID# 37 has no people assigned to it.
+Job ID# 38 started before all ancestors completed.
+Job ID# 38 started earlier than ancestors finished.
+Job ID# 38 has no people assigned to it.
+Job ID# 39 started before all ancestors completed.
+Job ID# 39 started earlier than ancestors finished.
+Job ID# 39 has no people assigned to it.
+Job ID# 40 started earlier than ancestors finished.
+Job ID# 40 has no people assigned to it.
+Job ID# 41 started before all ancestors completed.
+Job ID# 41 started earlier than ancestors finished.
+Job ID# 41 has no people assigned to it.
+Job ID# 42 started earlier than ancestors finished.
+Job ID# 42 has no people assigned to it.
+Job ID# 43 started before all ancestors completed.
+Job ID# 43 has no people assigned to it.
+Job ID# 44 started earlier than ancestors finished.
+Job ID# 44 has no people assigned to it.
+Job ID# 45 started earlier than ancestors finished.
+Job ID# 45 has no people assigned to it.
+Job ID# 46 started earlier than ancestors finished.
+Job ID# 46 has no people assigned to it.
+Job ID# 47 started earlier than ancestors finished.
+Job ID# 47 has no people assigned to it.
+Job ID# 48 started earlier than ancestors finished.
+Job ID# 48 has no people assigned to it.
+Job ID# 49 started earlier than ancestors finished.
+Job ID# 49 has no people assigned to it.
+Finish time: 56

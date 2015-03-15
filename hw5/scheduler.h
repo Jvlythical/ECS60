@@ -10,30 +10,43 @@
 class Scheduler
 {
 public:
-	typedef int (Scheduler::*TopSortCB)(JobWrapper*, int, int);
-
   Scheduler(int numJobs, int numWorkers, Job *jobs, int numPeople);
   void run();
-  int* createDepChart(Job*);
-  JobWrapper* wrapJobs(Job*);
-  JobWrapper* topSort();
-  void calcWaveST(JobWrapper*, int, int);
-  int calcWaveECT(JobWrapper*, int, int);
-  void queueJobs();
-  void assignPeople(JobWrapper &);
-
+  
   // Debug methods
   void printDepChart();
-  void printJl();
+  void printKeyChart();
+  void printJl(JobWrapper *, int);
   void testRun();
+  void printQueue(std::queue<JobWrapper>);
 
 private:
 	int num_jobs;
 	int *dep_chart;
+	int *key_chart;
 	JobWrapper *jl;
 	std::queue<JobWrapper> crit;
 	std::queue<JobWrapper> reg;
 	
+	// Initialization methods
+  int* createDepChart(Job*);
+  JobWrapper* wrapJobs(Job*);
+
+	// Set-up methods
+	JobWrapper* topSort();
+	void calcWaveST(std::queue<JobWrapper>, int, JobWrapper*);
+  JobWrapper calcWaveECT(std::queue<JobWrapper>, JobWrapper, JobWrapper*);
+  void calcTimes(JobWrapper*);
+ 
+ /*
+  void calcECT(JobWrapper, int, int &);
+  void calcST(JobWrapper, int);
+*/
+	
+	// Run methods
+  void queueJobs();
+  void assignPeople(JobWrapper &);
+
 }; // class Scheduler
 
 #endif
