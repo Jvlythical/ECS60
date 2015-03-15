@@ -9,38 +9,27 @@ using namespace std;
 Scheduler::Scheduler(int numJobs, int numWorkers, Job *jobs, int numPeople)
 {
 	key_chart = new int[numJobs];
+	cri_chart = new int[numJobs];
 
 	num_jobs = numJobs;
 	dep_chart = createDepChart(jobs);
 	jl = wrapJobs(jobs);
 	jl = topSort();
 	calcTimes(jl);
-	
-	/*
-	// Calc earliest completion times
-	for(int i = 0; i < num_jobs; ++i) {
-		if(dep_chart[jl[i].uid] == 0) 
-			calcECT(jl[i], 0, ECT);
-		else 
-			break;
-	}
-
-	// Calc slack times
-	for(int i = num_jobs - 1; i >= 0; --i) {
-		if(jl[i].job.numDependencies == 0) 
-			calcST(jl[i], ECT);
-		else 
-			break;
-	}
-	*/
-
-
-	//printJl(jl, numJobs);
-	
 	queueJobs();
 	
+	// For debugger purposes
+	printCriChart();
 	printQueue(crit);
+	//printJl(jl, num_jobs);
 } // Scheduler()
+
+Scheduler::~Scheduler() {
+	delete(dep_chart);
+	delete(key_chart);
+	delete(cri_chart);
+	delete(jl);
+}
 
 /* -------------------
  *   Init methods
@@ -75,17 +64,6 @@ JobWrapper* Scheduler::wrapJobs(Job *jobs) {
 
 		tmp[i] = jw;
 	}
-
-	/*
-	// Set parent id
-	for(int i = 0; i < num_jobs; i++) {
-		JobWrapper jw = tmp[i];
-
-		for(int n = 0; n < jw.job.numDependencies; n++) 
-			tmp[jw.job.dependencies[n]].parent = jw.uid;
-		
-	}
-	*/
 
 	return tmp;
 }
@@ -123,7 +101,7 @@ JobWrapper* Scheduler::topSort() {
 		tmp[tmp_pos] = cur;
 		key_chart[cur.uid] = tmp_pos++;
 		
-		// Prepare for next iteration
+		// Prepare for next wave
 		wave.pop();
 		if(wave.empty()) {
 			wave = q;
@@ -138,118 +116,50 @@ JobWrapper* Scheduler::topSort() {
 void Scheduler::calcTimes(JobWrapper *tmp) {
 	queue<JobWrapper> wave, empty;
 	int cur_wave = tmp[0].wave;
-	int prev_ect = 0;
 	JobWrapper jw;
-
+	
+	// Initialize the wrapper
+	jw.uid = -1;
 	jw.job.finishTime = 0;
 
 	for(int i = 0; i < num_jobs; i++) {
-
+	
 		// Seperate the jobs into waves
 		if(tmp[i].wave == cur_wave) {
-
-			//if(i != 0 && !valid) continue;
 			wave.push(tmp[i]);
 		}
 		else {
 			jw = calcWaveECT(wave, jw, tmp);
-			prev_ect = jw.job.finishTime;
 			calcWaveST(wave, jw.job.finishTime, tmp);
 			
+			// Set-up critical path
+			if(jw.uid != -1) {
+				if(cri_chart[cri_leng - 1] == jw.uid) 
+					cri_chart[cri_leng] = -1;
+				else 
+					cri_chart[cri_leng] = jw.uid; 
+				cri_leng += 1;
+			}
+			
+			// Initialize next wave
 			wave = empty;
-			
-			//if(checkIsDependent(jw, tmp[i].uid)) 
-				wave.push(tmp[i]);
-			
+			wave.push(tmp[i]);
 			cur_wave = tmp[i].wave;
 		}
-
 	}
 
 	jw = calcWaveECT(wave, jw, tmp);
-
-	prev_ect = jw.job.finishTime;
 	calcWaveST(wave, jw.job.finishTime, tmp);
-}
 
-/*
-void Scheduler::calcECT(JobWrapper jw, int prev_ect, int &ECT) {
-	int cur_uid = key_chart[jw.uid];
-	int finish_time = prev_ect + jw.job.length;
+	if(jw.uid != -1) {
+		if(cri_chart[cri_leng - 1] == jw.uid) 
+			cri_chart[cri_leng] = -1;
+		else 
+			cri_chart[cri_leng] = jw.uid; 
 
-	// Make sure to take the max dependency time
-	if(prev_ect > jl[cur_uid].job.startTime) {
-		jl[cur_uid].job.startTime = prev_ect;
-		jl[cur_uid].job.finishTime = finish_time;
+		cri_leng += 1;
 	}
 
-	// Keep track of the longest path time
-	if(ECT < finish_time)
-		ECT = finish_time;
-
-	// Recurse down the graph
-	for(int i = 0; i < jw.job.numDependencies; i++) {
-		int next_uid = key_chart[jw.job.dependencies[i]];
-
-		calcECT(jl[next_uid], finish_time, ECT);
-	}
-
-}
-*/
-
-
-void Scheduler::calcWaveST(queue<JobWrapper> wave, int prev_ect, JobWrapper *tmp) {
-	while(!wave.empty()) {
-		int cur_uid = key_chart[wave.front().uid];
-		
-		// Slack time = pevious ECT - finish time
-		tmp[cur_uid].st = prev_ect - tmp[cur_uid].job.finishTime;
-		wave.pop();
-	}
-}
-
-JobWrapper Scheduler::calcWaveECT(queue<JobWrapper> wave, JobWrapper jw, JobWrapper *tmp) {
-	//int ect = 0, 
-	JobWrapper ect;
-	int replaceable = true;
-	int prev_ect = jw.job.finishTime;
-
-	while(!wave.empty()) {
-		int cur_uid = key_chart[wave.front().uid];
-		int finish_time = prev_ect + tmp[cur_uid].job.length;
-		int num_dep = tmp[cur_uid].job.numDependencies;
-		
-		// Set start times to previous ect
-		tmp[cur_uid].job.startTime = prev_ect;
-		tmp[cur_uid].job.finishTime = finish_time;
-	
-		// Find the greatest completion time
-		if(finish_time > ect.job.finishTime || replaceable) {
-			/*	
-			if(checkIsDependent(jw, cur_uid)) {
-				printJl(&jw, 1);
-				cout << "Key found: " << cur_uid << endl;
-			} else {
-				printJl(&jw, 1);
-				cout << "Key not found: " << cur_uid << endl;
-			}
-			*/
-			if(num_dep > 0) {
-				//ect = finish_time;
-				ect = tmp[cur_uid];
-				replaceable = false;
-			}
-			
-			if(num_dep == 0 && replaceable) 
-				ect = tmp[cur_uid];
-				//ect = finish_time;
-			//}
-		}
-			
-		wave.pop();
-	}
-
-	return ect;
 }
 
 /* --------------------
@@ -308,19 +218,96 @@ void Scheduler::run()
 
 } // run()
 
-
-void Scheduler::queueJobs() {
-	for(int i = 0; i < num_jobs; i++) {
-		if(jl[i].st == 0) crit.push(jl[i]);	
-		else reg.push(jl[i]);
-	}
-}
-
-
 void Scheduler::assignPeople(JobWrapper &jw) {
 	cout << "Assigning people" << endl;
 }
 
+/* ---------------------
+ *   Helper methods
+ * ---------------------
+ */
+
+bool Scheduler::checkIsDependent(JobWrapper parent, int uid) {
+	bool valid = false;
+	
+	if(parent.uid == -1) return true;
+	for(int i = 0; i < parent.job.numDependencies; i++) {
+		if(parent.job.dependencies[i] == uid) {
+			valid = true;
+			break;
+		}
+	}
+
+	return valid;
+}
+
+void Scheduler::calcWaveST(queue<JobWrapper> wave, int prev_ect, JobWrapper *tmp) {
+	while(!wave.empty()) {
+		int cur_uid = key_chart[wave.front().uid];
+		
+		// Slack time = pevious ECT - finish time
+		tmp[cur_uid].st = prev_ect - tmp[cur_uid].job.finishTime;
+		wave.pop();
+	}
+}
+
+JobWrapper Scheduler::calcWaveECT(queue<JobWrapper> wave, JobWrapper jw, JobWrapper *tmp) {
+	JobWrapper ect;
+	int replaceable = true;
+	int prev_ect = jw.job.finishTime;
+	
+	while(!wave.empty()) {
+		int cur_uid = key_chart[wave.front().uid];
+		int finish_time = prev_ect + tmp[cur_uid].job.length;
+		int num_dep = tmp[cur_uid].job.numDependencies;
+		
+		// Set start times to previous ect
+		tmp[cur_uid].job.startTime = prev_ect;
+		tmp[cur_uid].job.finishTime = finish_time;
+	
+		// Find the greatest completion time
+		if(finish_time > ect.job.finishTime || replaceable) {
+			
+			if(checkIsDependent(jw, wave.front().uid)) {
+				if(num_dep > 0) {
+					ect = tmp[cur_uid];
+					replaceable = false;
+				}
+				
+				if(num_dep == 0 && replaceable) 
+					ect = tmp[cur_uid];
+			}
+
+		}
+			
+		wave.pop();
+	}
+	
+	return ect;
+}
+
+void Scheduler::queueJobs() {
+	int i = 0;
+	queue<int> crit_id;
+
+	for(; i < cri_leng; ++i) {
+		if(cri_chart[i] == -1) continue;
+		
+		crit_id.push(cri_chart[i]);
+		crit.push(jl[key_chart[cri_chart[i]]]);
+	}
+
+	for(i = 0; i < num_jobs; ++i) {
+		if(!crit_id.empty()) {
+			if(crit_id.front() == jl[i].uid) {
+				crit_id.pop();
+				continue;
+			}
+		}
+
+		reg.push(jl[i]);
+	}
+}
 
 /* -------------------
  *   Debug methods
@@ -381,15 +368,12 @@ void Scheduler::printQueue(queue<JobWrapper> q) {
 	delete(tmp_ar);
 }
 
-bool Scheduler::checkIsDependent(JobWrapper parent, int uid) {
-	bool valid = false;
-
-	for(int i = 0; i < parent.job.numDependencies; i++) {
-		if(parent.job.dependencies[i] == uid) {
-			valid = true;
-			break;
-		}
+void Scheduler::printCriChart() {
+	cout << " ===== PRINTING Critical Chart ===== " << endl;
+	
+	for(int i = 0; i < cri_leng; i++) {
+		cout << i << " \t=>\t" << cri_chart[i] << endl;
 	}
-
-	return valid;
 }
+
+
