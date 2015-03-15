@@ -19,6 +19,7 @@ public:
   void printJl(JobWrapper *, int);
   void testRun();
   void printQueue(std::queue<JobWrapper>);
+  bool checkIsDependent(JobWrapper, int);
 
 private:
 	int num_jobs;

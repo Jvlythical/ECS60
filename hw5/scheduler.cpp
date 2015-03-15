@@ -141,36 +141,26 @@ void Scheduler::calcTimes(JobWrapper *tmp) {
 	int prev_ect = 0;
 	JobWrapper jw;
 
+	jw.job.finishTime = 0;
+
 	for(int i = 0; i < num_jobs; i++) {
-		int valid = false;
-		
-		for(int n = 0; n < jw.job.numDependencies; n++)
-			if(jw.job.dependencies[n] == tmp[i].uid) {
-				valid = true;
-				break;
-			}
-
-		if(tmp[i].uid == 44) {
-			printJl(&tmp[i], 1);
-		}
-
 
 		// Seperate the jobs into waves
 		if(tmp[i].wave == cur_wave) {
 
-			if(i != 0 && !valid) continue;
+			//if(i != 0 && !valid) continue;
 			wave.push(tmp[i]);
 		}
 		else {
-			if(cur_wave == 4) printQueue(wave);
-
 			jw = calcWaveECT(wave, jw, tmp);
 			prev_ect = jw.job.finishTime;
 			calcWaveST(wave, jw.job.finishTime, tmp);
 			
 			wave = empty;
-
-			wave.push(tmp[i]);
+			
+			//if(checkIsDependent(jw, tmp[i].uid)) 
+				wave.push(tmp[i]);
+			
 			cur_wave = tmp[i].wave;
 		}
 
@@ -178,7 +168,7 @@ void Scheduler::calcTimes(JobWrapper *tmp) {
 
 	jw = calcWaveECT(wave, jw, tmp);
 
-			prev_ect = jw.job.finishTime;
+	prev_ect = jw.job.finishTime;
 	calcWaveST(wave, jw.job.finishTime, tmp);
 }
 
@@ -223,7 +213,7 @@ JobWrapper Scheduler::calcWaveECT(queue<JobWrapper> wave, JobWrapper jw, JobWrap
 	JobWrapper ect;
 	int replaceable = true;
 	int prev_ect = jw.job.finishTime;
-	
+
 	while(!wave.empty()) {
 		int cur_uid = key_chart[wave.front().uid];
 		int finish_time = prev_ect + tmp[cur_uid].job.length;
@@ -235,6 +225,15 @@ JobWrapper Scheduler::calcWaveECT(queue<JobWrapper> wave, JobWrapper jw, JobWrap
 	
 		// Find the greatest completion time
 		if(finish_time > ect.job.finishTime || replaceable) {
+			/*	
+			if(checkIsDependent(jw, cur_uid)) {
+				printJl(&jw, 1);
+				cout << "Key found: " << cur_uid << endl;
+			} else {
+				printJl(&jw, 1);
+				cout << "Key not found: " << cur_uid << endl;
+			}
+			*/
 			if(num_dep > 0) {
 				//ect = finish_time;
 				ect = tmp[cur_uid];
@@ -244,6 +243,7 @@ JobWrapper Scheduler::calcWaveECT(queue<JobWrapper> wave, JobWrapper jw, JobWrap
 			if(num_dep == 0 && replaceable) 
 				ect = tmp[cur_uid];
 				//ect = finish_time;
+			//}
 		}
 			
 		wave.pop();
@@ -381,4 +381,15 @@ void Scheduler::printQueue(queue<JobWrapper> q) {
 	delete(tmp_ar);
 }
 
+bool Scheduler::checkIsDependent(JobWrapper parent, int uid) {
+	bool valid = false;
 
+	for(int i = 0; i < parent.job.numDependencies; i++) {
+		if(parent.job.dependencies[i] == uid) {
+			valid = true;
+			break;
+		}
+	}
+
+	return valid;
+}

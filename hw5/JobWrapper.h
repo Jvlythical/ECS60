@@ -6,7 +6,6 @@
 		Job job;
 		int st;
 		int wave;
-		int parent;
 	} JobWrapper;
 
 #endif
