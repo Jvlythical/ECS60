@@ -5,7 +5,7 @@
 
 #include "ProjectRunner.h"
 #include "JobWrapper.h"
-
+#include "QueueLL.h"
 
 class Scheduler
 {
@@ -18,7 +18,7 @@ public:
   void printDepChart();
   void printKeyChart();
   void printJl(JobWrapper *, int);
-  void printQueue(std::queue<JobWrapper>);
+  void printQueue(QueueLL<JobWrapper>);
   void printCriChart();
 
 private:
@@ -28,8 +28,8 @@ private:
 	int *key_chart;
 	int *cri_chart;
 	JobWrapper *jl;
-	std::queue<JobWrapper> crit;
-	std::queue<JobWrapper> reg;
+	QueueLL<JobWrapper> crit;
+	QueueLL<JobWrapper> reg;
 	
 	// Initialization methods
   int* createDepChart(Job*);
@@ -45,8 +45,8 @@ private:
 
  	// Helper methods
   bool checkIsDependent(JobWrapper, int);
-  JobWrapper calcWaveECT(std::queue<JobWrapper>, JobWrapper, JobWrapper*);
-	void calcWaveST(std::queue<JobWrapper>, int, JobWrapper*);
+  JobWrapper calcWaveECT(QueueLL<JobWrapper>, JobWrapper, JobWrapper*);
+	void calcWaveST(QueueLL<JobWrapper>, int, JobWrapper*);
 
 }; // class Scheduler
 

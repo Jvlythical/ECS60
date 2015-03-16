@@ -4,7 +4,7 @@ p5.out: ProjectRunner.o scheduler.o
 ProjectRunner.o: ProjectRunner.cpp ProjectRunner.h scheduler.h CPUTimer.h 
 	g++ -Wall -ansi -g -c ProjectRunner.cpp
 
-scheduler.o: scheduler.cpp scheduler.h 
+scheduler.o: scheduler.cpp scheduler.h JobWrapper.h QueueLL.h
 	g++ -Wall -ansi -g -c scheduler.cpp
 
 

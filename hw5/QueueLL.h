@@ -1,45 +1,51 @@
-        #ifndef _QUEUEAR_H
-        #define _QUEUEAR_H
+        #ifndef _QUEUELL_H
+        #define _QUEUELL_H
 
-        #include "vector.h"
-        #include "dsexceptions.h"
-
-        // Queue class -- array implementation
+        // Queue class -- linked list implementation
         //
-        // CONSTRUCTION: with or without a capacity; default is 10
+
         //
         // ******************PUBLIC OPERATIONS*********************
         // void enqueue( x )      --> Insert x
         // void dequeue( )        --> Return and remove least recently inserted item
         // Object getFront( )     --> Return least recently inserted item
         // bool isEmpty( )        --> Return true if empty; else false
-        // bool isFull( )         --> Return true if full; else false
         // void makeEmpty( )      --> Remove all items
         // ******************ERRORS********************************
         // Overflow and Underflow thrown as needed
 
         template <class Object>
-        class Queue
+        class QueueLL;
+
+        template <class Object>
+        class ListNode
+        {
+            ListNode( const Object & theElement = Object( ), ListNode * n = NULL )
+              : element( theElement ), next( n ) { }
+
+            Object   element;
+            ListNode *next;
+
+            friend class QueueLL<Object>;
+        };
+
+        template <class Object>
+        class QueueLL
         {
           public:
-            explicit Queue( int capacity = 10 );
-
+            explicit QueueLL();
             bool isEmpty( ) const;
             bool isFull( ) const;
             const Object & getFront( ) const;
-
             void makeEmpty( );
             Object dequeue( );
             void enqueue( const Object & x );
+            void operator=(QueueLL<Object>);
 
           private:
-            vector<Object> theArray;
-            int            currentSize;
-            int            front;
-            int            back;
-
-            void increment( int & x );
+						ListNode<Object> *head;
+            ListNode<Object> *back;
         };
 
-        #include "QueueAr.cpp"
+        #include "QueueLL.cpp"
         #endif
