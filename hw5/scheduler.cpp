@@ -3,6 +3,7 @@
 
 #include "scheduler.h"
 #include "JobWrapper.h"
+//#include "QueueAr.h"
 
 using namespace std;
 
@@ -18,7 +19,7 @@ Scheduler::Scheduler(int numJobs, int numWorkers, Job *jobs, int numPeople)
 	calcTimes(jl);
 	queueJobs();
 	
-	// For debugger purposes
+	// For debugging purposes
 	printCriChart();
 	printQueue(crit);
 	//printJl(jl, num_jobs);
@@ -59,7 +60,7 @@ JobWrapper* Scheduler::wrapJobs(Job *jobs) {
 
 		jw.uid = i;
 		jw.job = jobs[i];
-		jw.job.startTime = -1;
+		jw.job.startTime = 0;
 		jw.job.finishTime = -1;
 
 		tmp[i] = jw;
@@ -120,6 +121,7 @@ void Scheduler::calcTimes(JobWrapper *tmp) {
 	
 	// Initialize the wrapper
 	jw.uid = -1;
+	jw.job.startTime = 0;
 	jw.job.finishTime = 0;
 
 	for(int i = 0; i < num_jobs; i++) {
@@ -260,10 +262,22 @@ JobWrapper Scheduler::calcWaveECT(queue<JobWrapper> wave, JobWrapper jw, JobWrap
 		int cur_uid = key_chart[wave.front().uid];
 		int finish_time = prev_ect + tmp[cur_uid].job.length;
 		int num_dep = tmp[cur_uid].job.numDependencies;
-		
+		int tmp_uid = 0;
+
 		// Set start times to previous ect
-		tmp[cur_uid].job.startTime = prev_ect;
+	
+		if(checkIsDependent(jw, wave.front().uid))
+			tmp[cur_uid].job.startTime = prev_ect;
+		
+		finish_time = tmp[cur_uid].job.startTime + tmp[cur_uid].job.length;
 		tmp[cur_uid].job.finishTime = finish_time;
+
+		for(int i = 0; i < tmp[cur_uid].job.numDependencies; i++) {
+			tmp_uid = key_chart[tmp[cur_uid].job.dependencies[i]];
+			
+			if(finish_time > tmp[cur_uid].job.startTime)
+				tmp[tmp_uid].job.startTime = finish_time;
+		}
 	
 		// Find the greatest completion time
 		if(finish_time > ect.job.finishTime || replaceable) {

@@ -6,6 +6,7 @@
 		Job job;
 		int st;
 		int wave;
+		int p_uid;
 	} JobWrapper;
 
 #endif
