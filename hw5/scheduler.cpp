@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <cmath>
+#include <cstdlib>
 
 #include "scheduler.h"
 #include "JobWrapper.h"
@@ -14,7 +15,6 @@ Scheduler::Scheduler(int numJobs, int numWorkers, Job *jobs, int numPeople)
 	cri_chart = new int[numJobs];
 
 	free_ppl = numPeople;
-	jobs_ar = jobs;
 	num_jobs = numJobs;
 	num_ppl = numPeople;
 	
@@ -24,18 +24,12 @@ Scheduler::Scheduler(int numJobs, int numWorkers, Job *jobs, int numPeople)
 	jl = topSort();
 	calcTimes(jl);
 
-	//printJl(jl, num_jobs);
-
 	queueJobs();
 
-	
 	// Copy jobs over
 	for(int i = 0; i < num_jobs; i++) 
-		jobs_ar[i] = jl[key_chart[i]].job;
+		jobs[i] = jl[key_chart[i]].job;
 
-	//printJobsAr();
-
-	//printJl(jl, num_jobs);
 	// For debugging purposes
 	//printCriChart();
 	//printQueue(crit);
@@ -196,35 +190,7 @@ void Scheduler::calcTimes(JobWrapper *tmp) {
 
 void Scheduler::run()
 {
-/*
-	assignPeople(1, 3);
-	freePeople(1);
-	assignPeople(9, 3);
-	freePeople(9);
-	assignPeople(4, 3);
-	freePeople(4);
-	jobs_ar[5].startTime = 33;
-	assignPeople(5, 3);
-	freePeople(5);
-	jobs_ar[8].startTime = 41;
-	assignPeople(8, 3);
-	freePeople(8);
-	jobs_ar[0].startTime = 48;
-	assignPeople(0, 3);
-	freePeople(0);
-	jobs_ar[2].startTime = 61;
-	assignPeople(2, 3);
-	freePeople(2);
-	jobs_ar[7].startTime = 64;
-	assignPeople(7, 3);
-	freePeople(7);
-	jobs_ar[6].startTime = 74;
-	assignPeople(6, 3);
-	freePeople(6);
-	jobs_ar[3].startTime = 90;
-	assignPeople(3, 3);
-*/
-	return;
+
 } // run()
 
 /* ---------------------
@@ -256,59 +222,70 @@ void Scheduler::calcWaveST(QueueLL<JobWrapper> wave, int prev_ect, JobWrapper *t
 	}
 }
 
+int compare(const void *a, const void*b) {
+	return  (*(JobWrapper*)b).job.length - (*(JobWrapper*)a).job.length;
+}
+
 JobWrapper Scheduler::calcWaveECT(QueueLL<JobWrapper> wave, JobWrapper jw, JobWrapper *tmp) {
+	int next_time = 0, count = 0, wave_size = 0;
+	int max_time = 0, finish_time, assign_num;
 	JobWrapper ect;
-	bool replaceable = true;
-	int finish_time, tmp_uid;
-	int prev_ect = jw.job.finishTime;
-	int next_time = 0, count = 0;
 	
+	JobWrapper jw_ar[500];
+
+	while(!wave.isEmpty()) 
+		jw_ar[wave_size++] = wave.dequeue();
+
+	qsort(jw_ar, wave_size, sizeof(JobWrapper), compare);
+
+	for(int i = 0; i < wave_size; i++) 
+		wave.enqueue(jw_ar[i]);
+
+	if (wave_size > 100 && num_ppl < 1000) 
+		assign_num = 10;
+	else
+		assign_num = 25;
+
 	while(!wave.isEmpty()) {
 		int cur_uid = key_chart[wave.getFront().uid];
-		int num_dep = tmp[cur_uid].job.numDependencies;
-
 
 		// Set start times to previous ect
-		if(count == 0)
+		if(count == 0) 
 			tmp[cur_uid].job.startTime = jl[key_chart[jw.uid]].job.finishTime;
-		else  {
+		else  
 			tmp[cur_uid].job.startTime = next_time;
-		}
 		
 		// Set the finish time
 		finish_time = tmp[cur_uid].job.startTime + tmp[cur_uid].job.length;
 		tmp[cur_uid].job.finishTime = finish_time;
 
-
-		//JobWrapper cur = wave.dequeue();
-		//assignPeople(cur, ((num_ppl > 50) ? 50 : num_ppl));
-		//freePeople(cur);
-
-		// ---------
+		// Assign the people
 		QueueLL<int>parallel_times;
 		QueueLL<JobWrapper>parallel_q;
 		JobWrapper cur;
 		int start_time = tmp[cur_uid].job.startTime;
-		
-		//cout << start_time << endl;
 
 		while(free_ppl > 0 && !wave.isEmpty()) {
 			cur = wave.dequeue();
 			cur_uid = key_chart[cur.uid];
-
-
+			
 			tmp[cur_uid].job.startTime = start_time;
-			assignPeople(cur, ((num_ppl > 50) ? 50 : num_ppl));
+			assignPeople(cur, ((free_ppl > assign_num) ? assign_num : free_ppl));
 			parallel_times.enqueue(tmp[cur_uid].job.finishTime);
 			parallel_q.enqueue(cur);
 		}
 		
-		int max_time = 0;
 
+		// Free the people
 		while(!parallel_q.isEmpty()) {
 			int uid = key_chart[parallel_q.getFront().uid];
 			int time = tmp[uid].job.finishTime;
-
+		
+			for(int i = 0; i < tmp[uid].job.numDependencies; i++) {
+				tmp[key_chart[tmp[uid].job.dependencies[i]]].job.startTime = time;
+			}
+		
+			// Find the worst case time for the next wave
 			if(max_time < time) {
 				cur = parallel_q.getFront();
 				cur_uid = uid;
@@ -318,11 +295,9 @@ JobWrapper Scheduler::calcWaveECT(QueueLL<JobWrapper> wave, JobWrapper jw, JobWr
 			freePeople(parallel_q.dequeue());
 		}
 
-		// ---------
 
-
+		// Prepare for next iteration
 		if(!wave.isEmpty()) {
-			int next_uid = key_chart[wave.getFront().uid];
 			next_time = tmp[cur_uid].job.finishTime;
 		} else {
 			ect = cur;
@@ -359,41 +334,6 @@ void Scheduler::queueJobs() {
 	}
 }
 
-
-
-// marker
-
-bool Scheduler::assignPeople(int job_id, int amnt) {
-	short num_ppl = 0;
-	Job &j = jobs_ar[job_id];
-	
-	// Validation
-	if(ppl_q.isEmpty()) return false;
-	
-	// Assign the people
-	for(int i = 0; i < amnt; i++) {
-		num_ppl = jobs_ar[job_id].numPeopleUsed;
-		
-		j.peopleIDs[num_ppl] = ppl_q.dequeue();
-		j.numPeopleUsed += 1;
-
-		free_ppl -= 1;
-	}
-
-	// Calculate finish time
-	j.finishTime = ceil(j.startTime + j.length / (float) j.numPeopleUsed);
-	
-	// Modify dependency start times
-	for(int i = 0; i < j.numDependencies; i++) {
-		int cur_uid = j.dependencies[i];
-	
-		if(jobs_ar[cur_uid].startTime < j.finishTime)	
-			jobs_ar[cur_uid].startTime = j.finishTime;
-	}
-
-	return true;
-}
-
 bool Scheduler::assignPeople(JobWrapper &tmp, int amnt) {
 	short num_ppl = 0;
 	JobWrapper &jw = jl[key_chart[tmp.uid]];
@@ -416,15 +356,6 @@ bool Scheduler::assignPeople(JobWrapper &tmp, int amnt) {
 	jw.job.finishTime = ceil(jw.job.startTime + jw.job.length / (float) jw.job.numPeopleUsed);
 	
 	return true;
-}
-
-void Scheduler::freePeople(int job_id) {
-	Job &job = jobs_ar[job_id];
-		
-	for(int i = 0; i < job.numPeopleUsed; i++) {
-		ppl_q.enqueue(job.peopleIDs[i]);
-		free_ppl += 1;
-	}
 }
 
 void Scheduler::freePeople(const JobWrapper &tmp) {
@@ -475,7 +406,7 @@ void Scheduler::printJl(JobWrapper *jw_ar, int size = 0) {
 		cout << endl;
 		cout << "\tStart time: " << tmp.job.startTime << endl;
 		cout << "\tFinish time: " << tmp.job.finishTime << endl;
-		//cout << "\tSlack time: " << tmp.st << endl;
+		cout << "\tSlack time: " << tmp.st << endl;
 		cout << "\tWave: " << tmp.wave << endl;
 		cout << "\tDependencies: ";
 		
@@ -510,28 +441,4 @@ void Scheduler::printCriChart() {
 	}
 }
 
-void Scheduler::printJobsAr() {
-	cout << " ===== PRINTING Jobs Ar =====" << endl;
 
-	for(int i = 0; i < num_jobs; i++) {
-		Job tmp = jobs_ar[i];
-
-		cout << "Job UID: " << i << endl;
-		cout << "\tLength: " << tmp.length << endl;
-		cout << "\tPeople: " << tmp.numPeopleUsed << endl;
-		cout << "\tStart time: " << tmp.startTime << endl;
-		cout << "\tFinish time: " << tmp.finishTime << endl;
-		cout << "\tPeople: ";
-		for(int n = 0; n < tmp.numPeopleUsed; n++) {
-			cout << tmp.peopleIDs[n] << " ";
-		}
-		cout << endl;
-		cout << "\tDependencies: ";
-		
-		for(int n = 0; n < tmp.numDependencies; n++) {
-			cout << tmp.dependencies[n] << " ";
-		}
-		cout << endl;
-	}
-	cout << endl;
-}
