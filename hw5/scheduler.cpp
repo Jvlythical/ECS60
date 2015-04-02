@@ -280,10 +280,11 @@ JobWrapper Scheduler::calcWaveECT(QueueLL<JobWrapper> wave, JobWrapper jw, JobWr
 		while(!parallel_q.isEmpty()) {
 			int uid = key_chart[parallel_q.getFront().uid];
 			int time = tmp[uid].job.finishTime;
-		
+			/*	
 			for(int i = 0; i < tmp[uid].job.numDependencies; i++) {
 				tmp[key_chart[tmp[uid].job.dependencies[i]]].job.startTime = time;
 			}
+			*/
 		
 			// Find the worst case time for the next wave
 			if(max_time < time) {
