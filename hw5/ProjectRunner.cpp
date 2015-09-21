@@ -23,7 +23,7 @@ public:
 };
 
 
-void check(int numJobs, int numWorkers, Job *jobs, Job *jobs2, int numPeople)
+void check(int numJobs, int numChildren, Job *jobs, Job *jobs2, int numPeople)
 {
   int ID, *earliestStarts = new int[numJobs], finishTime, maxFinishTime = 0;
   short *ancestors = new short[numJobs];
@@ -54,6 +54,10 @@ void check(int numJobs, int numWorkers, Job *jobs, Job *jobs2, int numPeople)
       cout << "Job ID# " << ID << " has no people assigned to it.\n";
     else
     {
+      if(jobs[ID].numPeopleUsed > numChildren)
+        cout << "Job ID# " << ID << " has " << jobs[ID].numPeopleUsed 
+          << " people assigned, which is too many.\n";
+      
       finishTime = int (jobs[ID].startTime + ceil(jobs2[ID].length / double(jobs[ID].numPeopleUsed)));
       for(int i = 0; i < jobs[ID].numPeopleUsed; i++)
       {
@@ -91,7 +95,7 @@ void check(int numJobs, int numWorkers, Job *jobs, Job *jobs2, int numPeople)
 
 void readFile(const char* filename, Job *jobs, Job *jobs2,  int numJobs)
 {
-  int ID = 0, i, numWorkers;
+  int ID = 0, i, children;
   char s[1024];
 
   ifstream inf(filename);
@@ -100,9 +104,9 @@ void readFile(const char* filename, Job *jobs, Job *jobs2,  int numJobs)
     strtok(s, ",");
     jobs[ID].numPeopleUsed = 0;
     jobs2[ID].length = jobs[ID].length = atoi(strtok(NULL, ","));
-    numWorkers = jobs2[ID].numDependencies =jobs[ID].numDependencies
+    children = jobs2[ID].numDependencies =jobs[ID].numDependencies
       = atoi(strtok(NULL,","));
-    for(i = 0; i < numWorkers; i++)
+    for(i = 0; i < children; i++)
       jobs2[ID].dependencies[i] = jobs[ID].dependencies[i]
         = atoi(strtok(NULL, ","));
     ID++;
@@ -114,18 +118,18 @@ int main(int argc, char* argv[])  // argv[1] = filename,
 // argv[2] = number of workers
 {
   CPUTimer ct;
-  int numPeople = atoi(argv[2]), numJobs, numWorkers;
+  int numPeople = atoi(argv[2]), numJobs, numChildren;
 
-  sscanf(argv[1], "Jobs-%d-%d", &numJobs, &numWorkers);
+  sscanf(argv[1], "Jobs-%d-%d", &numJobs, &numChildren);
   Job *jobs2, *jobs = new Job[numJobs];
   jobs2 = new Job[numJobs];
   readFile(argv[1], jobs, jobs2, numJobs);
 
   ct.reset();
-  Scheduler *scheduler = new Scheduler(numJobs, numWorkers, jobs, numPeople);
+  Scheduler *scheduler = new Scheduler(numJobs, numChildren, jobs, numPeople);
   scheduler->run();
   cout << "CPU time: " << ct.cur_CPUTime() << endl;
-  check(numJobs, numWorkers, jobs, jobs2, numPeople);
+  check(numJobs, numChildren, jobs, jobs2, numPeople);
 
   delete [] jobs;
   delete [] jobs2;

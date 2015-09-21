@@ -2,6 +2,7 @@
 #define	FAMILYTREE_H
 
 #include "familyRunner.h"
+
 #include "PersonWrapper.h"
 #include "HashTable.h"
 

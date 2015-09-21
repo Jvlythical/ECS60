@@ -3,15 +3,17 @@
 #include <cstring>
 
 #include "familytree.h"
+
 #include "PersonWrapper.h"
 #include "HashTable.h"
+#include "StackAr.h"
 
 using namespace std;
 
 FamilyTree::FamilyTree(Family *families, int familyCount)
 {
 	PersonWrapper pw;
-	pw.uid = 0;
+	pw.uid = -1;
 
 	edges = new QuadraticHashTable<PersonWrapper> (pw, familyCount * 7);
 
@@ -33,6 +35,8 @@ FamilyTree::FamilyTree(Family *families, int familyCount)
 			pw.parent[0] = null_parent;
 			pw.parent[1] = null_parent;
 			edges->insert(pw);
+
+			people++;
 		}
 
 		int p2_uid = createUid(family.spouse);
@@ -46,6 +50,8 @@ FamilyTree::FamilyTree(Family *families, int familyCount)
 			pw.parent[0] = null_parent;
 			pw.parent[1] = null_parent;
 			edges->insert( pw);
+
+			people++;
 		}
 
 		for(int n = 0; n < family.childCount; n++) {
@@ -58,18 +64,27 @@ FamilyTree::FamilyTree(Family *families, int familyCount)
 			pw.parent[0] = family.person;
 			pw.parent[1] = family.spouse;
 			edges->insert( pw);
+
+			people++;
 		}
 	}
 } // FamilyTree()
 
+
+/* =================
+ *   Run queries
+ * =================
+ */
+
 void FamilyTree::runQueries(Query *queries, Person *answers, int queryCount)
 {
-	PersonWrapper pw_tmp;
-	pw_tmp.uid = 0;
-	QuadraticHashTable<PersonWrapper>ht(pw_tmp, 1250);
 
+	PersonWrapper pw_tmp;
+	pw_tmp.person.year = -1;
+	
 	for(int i = 0; i < queryCount; i++) {
 
+		QuadraticHashTable<PersonWrapper>ht(pw_tmp, 1250);
 		PersonWrapper pw = edges->find(queries[i].person1);
 		
 		// Get ancestors for person 1
@@ -80,23 +95,21 @@ void FamilyTree::runQueries(Query *queries, Person *answers, int queryCount)
 		pw_tmp.person.year = -1;
 		answers[i] = findYoungest(&ht, pw, pw_tmp, 0).person;
 
-		// Clean-up
-		ht.makeEmpty();
 	}
 
 }  // runQueries()
 
+/* =========================
+ *   Generate unique id
+ * =========================
+ */
+
 int FamilyTree::createUid(Person p) {
 	int seed = 131, uid = 0;
-	
-	for(unsigned int i = 0; i < strlen(p.firstName); i++) 
-		uid = uid * seed + p.firstName[i];
-	for(unsigned int i = 0; i < strlen(p.lastName); i++) 
-		uid = uid * seed + p.lastName[i];
-	
-	uid = uid * seed + p.year;
-	uid = uid * seed + p.gender;	
-	
+for(unsigned int i = 0; i < strlen(p.firstName); i++) uid = uid * seed + p.firstName[i];
+for(unsigned int i = 0; i < strlen(p.lastName); i++) uid = uid * seed + p.lastName[i];
+uid = uid * seed + p.year;
+uid = uid * seed + p.gender;	
 	if(uid < 0) uid = -uid;
 	return uid;
 }
@@ -123,11 +136,8 @@ PersonWrapper FamilyTree::findYoungest(QuadraticHashTable<PersonWrapper>* ht, Pe
 	PersonWrapper p1 = edges->find(pw.p1_uid);
 	PersonWrapper p2 = edges->find(pw.p2_uid);
 
-	if(p1.person.year > youngest.person.year) 
-		findYoungest(ht, p1, youngest, count);
-	
-	if(p2.person.year > youngest.person.year)
-		findYoungest(ht, p2, youngest, count);
+	if(p1.person.year > youngest.person.year) findYoungest(ht, p1, youngest, count);
+	if(p2.person.year > youngest.person.year)findYoungest(ht, p2, youngest, count);
 	
 
 	return youngest;

@@ -26,6 +26,7 @@ private:
 	int cri_leng;
 	int free_ppl;
 	int num_ppl;
+	int max_ppl;
 	
 	int *dep_chart;
 	int *key_chart;

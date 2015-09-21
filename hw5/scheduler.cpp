@@ -17,6 +17,7 @@ Scheduler::Scheduler(int numJobs, int numWorkers, Job *jobs, int numPeople)
 	free_ppl = numPeople;
 	num_jobs = numJobs;
 	num_ppl = numPeople;
+	max_ppl = numWorkers;
 	
 	createPeopleQueue(numPeople);
 	dep_chart = createDepChart(jobs);
@@ -245,13 +246,19 @@ JobWrapper Scheduler::calcWaveECT(QueueLL<JobWrapper> wave, JobWrapper jw, JobWr
 		assign_num = 10;
 	else
 		assign_num = 25;
+	if(assign_num > max_ppl)
+		assign_num = max_ppl;
 
 	while(!wave.isEmpty()) {
 		int cur_uid = key_chart[wave.getFront().uid];
 
 		// Set start times to previous ect
-		if(count == 0) 
-			tmp[cur_uid].job.startTime = jl[key_chart[jw.uid]].job.finishTime;
+		if(count == 0) {
+			if(jw.uid == -1) 
+				tmp[cur_uid].job.startTime = 0;
+			else
+				tmp[cur_uid].job.startTime = jl[key_chart[jw.uid]].job.finishTime;
+		}
 		else  
 			tmp[cur_uid].job.startTime = next_time;
 		

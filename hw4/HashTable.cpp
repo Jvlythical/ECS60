@@ -37,23 +37,16 @@
             
             return n;
         }
-
+//
         /**
          * Construct the hash table.
          */
         template <class HashedObj>
         QuadraticHashTable<HashedObj>::QuadraticHashTable( const HashedObj & notFound, int size )
-          : AR_SIZE( nextPrime( size ) ), ITEM_NOT_FOUND( notFound )
+          : array( nextPrime( size ) ), ITEM_NOT_FOUND( notFound )
         {
-					array = new HashEntry[AR_SIZE];
-          makeEmpty( );
+            makeEmpty( );
         }
-
-				template <class HashedObj>
-        QuadraticHashTable<HashedObj>::~QuadraticHashTable() {
-					delete(array);
-				}
-         
         
         /**
          * Make the hash table logically empty.
@@ -62,10 +55,8 @@
         void QuadraticHashTable<HashedObj>::makeEmpty( )
         {
             currentSize = 0;
-            for( int i = 0; i < AR_SIZE; i++ ) {
-							array[ i ].info = EMPTY;
-							array[ i ].element.uid = 0;
-					}
+            for( int i = 0; i < array.size( ); i++ )
+                array[ i ].info = EMPTY;
         }
 
         /**
@@ -121,6 +112,11 @@
             // Insert x as active
             int currentPos = findPos( x.uid );
             array[ currentPos ] = HashEntry( x, ACTIVE );
+		return;
+
+            // Rehash; see Section 5.5
+            if( ++currentSize > array.size( ) / 2 ) 
+                rehash( );
         }
 
 
@@ -130,15 +126,22 @@
          template <class HashedObj>
         int QuadraticHashTable<HashedObj>::hash( const Person & p, int tableSize ) const
         {
-						int seed = 131, uid = 0;
-						
-						for(unsigned int i = 0; i < strlen(p.firstName); i++) uid = uid * seed + p.firstName[i];
-						for(unsigned int i = 0; i < strlen(p.lastName); i++) uid = uid * seed + p.lastName[i];
-						uid = uid * seed + p.year;
-						uid = uid * seed + p.gender;
+	int seed = 131, uid = 0;
+	for(unsigned int i = 0; i < strlen(p.firstName); i++) uid = uid * seed + p.firstName[i];
+	for(unsigned int i = 0; i < strlen(p.lastName); i++) uid = uid * seed + p.lastName[i];
+	uid = uid * seed + p.year;
+	uid = uid * seed + p.gender;
 
             if( uid < 0 ) uid = -uid;
             return uid ;
+        }
+        
+        template <class HashedObj>
+        void QuadraticHashTable<HashedObj>::printAll() {
+            cout << "Size: " << array.size() << endl;
+            for(int i = 0; i < array.size(); i++) {
+                cout << array[i].element << endl;
+            }
         }
         
         /**
@@ -148,7 +151,7 @@
         template <class HashedObj>
         const HashedObj & QuadraticHashTable<HashedObj>::find( const Person & x ) const
         {
-            int currentPos = findPos( hash(x, AR_SIZE) );
+            int currentPos = findPos( hash(x, array.size())) ;
             return array[ currentPos ].element;
         }
         
@@ -172,15 +175,16 @@
         int QuadraticHashTable<HashedObj>::findPos(int uid) const
         {
             int collisionNum = 0;
-            int currentPos = uid % AR_SIZE;
+            //int uid = hash( x, array.size( ) );
+            int currentPos = uid % array.size();
             
             HashedObj node = array[ currentPos ].element;
 
             while( array[ currentPos ].info != EMPTY && node.uid != uid) {
               currentPos += 2 * ++collisionNum - 1;  // Compute ith probe
-              if( currentPos >= AR_SIZE ) {
+              if( currentPos >= array.size( ) ) {
 
-              	currentPos -= AR_SIZE;
+              	currentPos -= array.size( );
               }
 
               node = array[currentPos].element;
@@ -189,8 +193,31 @@
           return currentPos;
         }
         
+/* ==========================
+ *  Expand the hash table.
+ * ==========================
+ */
+        template <class HashedObj>
+        void QuadraticHashTable<HashedObj>::rehash( )
+        {
+            vector<HashEntry> oldArray = array;
 
-				template <class HashedObj>
+            // Create new double-sized, empty table
+            array.resize( nextPrime( 2 * oldArray.size( ) ) );
+            for( int j = 0; j < array.size( ); j++ )
+                array[ j ].info = EMPTY;
+
+            // Copy table over
+            currentSize = 0;
+            for( int i = 0; i < oldArray.size( ); i++ ) {
+                HashedObj node = oldArray[ i ].element;
+                if( oldArray[ i ].info == ACTIVE )
+                    insert( node);
+            }
+        }
+
+
+template <class HashedObj>
         const HashedObj & QuadraticHashTable<HashedObj>::find( int uid ) const
         {
             int currentPos = findPos( uid );

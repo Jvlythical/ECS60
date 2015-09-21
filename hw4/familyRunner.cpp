@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
+
 #include "familyRunner.h"
 #include "CPUTimer.h"
 #include "familytree.h"
@@ -87,7 +88,6 @@ int main(int argc, char* argv[])
   ct.reset();
   FamilyTree *familyTree = new FamilyTree(families, familyCount);
   delete [] families;
-	
   familyTree->runQueries(queries, answers, queryCount);
   cout << "CPU Time: " << ct.cur_CPUTime() << endl;
 
